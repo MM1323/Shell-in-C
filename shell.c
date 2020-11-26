@@ -76,6 +76,7 @@ int create_process(char **command) {
 		ret = execv(command[0], command);//execv only returns -1 if an error has occurred 
 		fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
         //might create helper function that handles other types of errors. (Defensive programming);
+        exit(0); //exit failed process
 	}
 	else {
 		int child_status; 
@@ -94,11 +95,15 @@ int main(int argc, char **argv) {
     char buffer[1024];
     while (fgets(buffer, 1024, stdin) != NULL) {
         char **command = tokenize(buffer, " \t\n"); //command[0] holds "/bin/ls"; command[1] holds "-l"
-        printf("%s \n", command[0]);//DEBUGGER
-        if (strncmp(command[0], "exit", 4) == 0) {  //check whether built-in or exit() command
+        printf("Beginning is %s \n", command[0]);//DEBUGGER
+        if (command[0] == NULL) {
+            // printf("ITS NULL\n"); //DEBUGGER
+            //DONE NOTHING SINCE ENTERED SPACE
+        } else if (strncmp(command[0], "exit", 4) == 0) {  //check whether built-in or exit() command
+            //printf("IS EXIT\n"); //DEBUGGER
            exit(0); 
-        }
-        else {
+        } else if ((strncmp(command[0], "", 4))) {
+            // printf("IS NOT NULL \n"); //DEBUGGER
             int child_pid = create_process(command);
             //exit(child_pid); may not be necessary. Uncommenting it will cause shell to exit while loop
         }
