@@ -94,6 +94,10 @@ int main(int argc, char **argv) {
     fflush(stdout);  // Display the prompt immediately
     char buffer[1024];
     while (fgets(buffer, 1024, stdin) != NULL) {
+        // create check for runnning processes
+        // if finished do print statment
+        // remove ## from the list
+        // active_PID_number--
         char **command = tokenize(buffer, " \t\n"); //command[0] holds "/bin/ls"; command[1] holds "-l"
         printf("Beginning is %s \n", command[0]);//DEBUGGER
         unsigned int PIDS_IN_PROCESS[MAX_BACKGROUND];
@@ -111,15 +115,23 @@ int main(int argc, char **argv) {
                 exit(0); 
             } else if (strncmp(command[0], "jobs", 4) == 0) { //print number of jobs
                 // printf("ITS JOBS\n"); //DEBUGGER
+                // This should work if the bottom is set
+                // Need to work in out to include the ,
                 printf("Process currently active: ");
                 for (int x = 0; x < active_PID_number; x ++) {
                     printf("%d ", PIDS_IN_PROCESS[x]);
                 }
+                printf("\n");
             } else if (strncmp(command[0], "kill", 4) == 0) { //kill pid in process
                 printf("ITS KILL PID\n");
+                // use kill + extras found in instr
+                // take ## out of the list
+                // active_PID_number--
             } else if (strncmp(command[i-1], "&", 4) == 0){
                 printf("ITS AND &\n");
-
+                // create process
+                // add ## to the list (PIDS_IN_PROCESS)
+                // increase active_PID_number by one
             } else {
                 // printf("IS NOT NULL \n"); //DEBUGGER
                 int child_pid = create_process(command);
