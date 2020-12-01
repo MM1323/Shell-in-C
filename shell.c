@@ -96,17 +96,37 @@ int main(int argc, char **argv) {
     while (fgets(buffer, 1024, stdin) != NULL) {
         char **command = tokenize(buffer, " \t\n"); //command[0] holds "/bin/ls"; command[1] holds "-l"
         printf("Beginning is %s \n", command[0]);//DEBUGGER
-        if (command[0] == NULL) {
-            // printf("ITS NULL\n"); //DEBUGGER
-            //DONE NOTHING SINCE ENTERED SPACE
-        } else if (strncmp(command[0], "exit", 4) == 0) {  //check whether built-in or exit() command
-            //printf("IS EXIT\n"); //DEBUGGER
-           exit(0); 
-        } else if ((strncmp(command[0], "", 4))) {
-            // printf("IS NOT NULL \n"); //DEBUGGER
-            int child_pid = create_process(command);
-            //exit(child_pid); may not be necessary. Uncommenting it will cause shell to exit while loop
+        unsigned int PIDS_IN_PROCESS[MAX_BACKGROUND];
+        unsigned int active_PID_number = 0;
+        //check if nothing was entered
+        if (command[0] != NULL){
+            // Get what the last char is
+            int i = 0;
+            while(command[i] != NULL) {
+                i++;
+            }
+            printf("The last char is %s\n", command[i-1]);
+            ///////////////////////////
+            if (strncmp(command[0], "exit", 4) == 0) {  //check whether built-in or exit() command
+                exit(0); 
+            } else if (strncmp(command[0], "jobs", 4) == 0) { //print number of jobs
+                // printf("ITS JOBS\n"); //DEBUGGER
+                printf("Process currently active: ");
+                for (int x = 0; x < active_PID_number; x ++) {
+                    printf("%d ", PIDS_IN_PROCESS[x]);
+                }
+            } else if (strncmp(command[0], "kill", 4) == 0) { //kill pid in process
+                printf("ITS KILL PID\n");
+            } else if (strncmp(command[i-1], "&", 4) == 0){
+                printf("ITS AND &\n");
+
+            } else {
+                // printf("IS NOT NULL \n"); //DEBUGGER
+                int child_pid = create_process(command);
+                //exit(child_pid); may not be necessary. Uncommenting it will cause shell to exit while loop
+            }
         }
+
         printf("%s", PROMPT);
         fflush(stdout);  // Display the prompt immediately
     }
