@@ -65,7 +65,6 @@ void free_tokens(char **tokens) {
     free(tokens); // then free the array
 }
 
-
 int create_process(char **command) {
     pid_t child_pid;
     int ret;
@@ -151,12 +150,20 @@ int main(int argc, char **argv) {
                 printf("%d\n", PIDS_IN_PROCESS[active_PID_number - 1]);
             } else if (strncmp(command[0], "kill", 4) == 0) { //kill pid in process
                 printf("ITS KILL PID\n");
-                // use kill + extras found in instr
-                // take ## out of the list
-                // active_PID_number--
+                // kill(command[0], SIGKILL); // use kill 
+                // for (int y = 0; y < active_PID_number; y++){
+                //     if (command[0] == PIDS_IN_PROCESS[y]) {
+                //         PIDS_IN_PROCESS[y] = NULL;
+                //     }
+                // }
+                // for(y; y < active_PID_number; y++) {
+                //     PIDS_IN_PROCESS[y] = PIDS_IN_PROCESS[y + 1]
+                // }
+                // active_PID_number--; // active_PID_number--
             } else if (strncmp(command[i-1], "&", 4) == 0){
                 printf("ITS AND &\n"); //DEBUGGER
                 printf("Active process count before %s is created: %d\n", command[0], active_PID_number);  //DEBUGGER
+                command[i-1] = NULL;
                 int child_pid = create_back_process(command);
                 printf("New PID: %d\n", child_pid); //DEBUGGER
                 PIDS_IN_PROCESS[active_PID_number] = child_pid;// add ## to the list (PIDS_IN_PROCESS)
