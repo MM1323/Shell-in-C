@@ -111,7 +111,10 @@ int main(int argc, char **argv) {
     int active_PID_number = 0; //keep track of # of active processes
     unsigned int PIDS_IN_PROCESS[MAX_BACKGROUND]; //Moved here b/c needs to be declared before check
     while (fgets(buffer, 1024, stdin) != NULL) {
-        for (int i = 0; i < active_PID_number; i++) {// check for runnning processes
+        // check for runnning processes
+        // Alternative Idea: Set a boolean var. to true when a background process is running. 
+        /*
+        for (int i = 0; i < active_PID_number; i++) {
             int child_pid = PIDS_IN_PROCESS[i];
             int child_status;
             printf("Child status: %d\n", child_status); 
@@ -124,7 +127,7 @@ int main(int argc, char **argv) {
             else if (ret == -1) {
                 fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
             }
-        }
+        }*/
 
         char **command = tokenize(buffer, " \t\n"); //command[0] holds "/bin/ls"; command[1] holds "-l"
         printf("Beginning is %s \n", command[0]);//DEBUGGER
@@ -149,11 +152,11 @@ int main(int argc, char **argv) {
                 // This should work if the bottom is set
                 // Need to work in out to include the ,
                 printf("Process currently active (should print %d): ", active_PID_number);
-                //int max = active_PID_number - 1;
-                for (int x = 0; x < active_PID_number; x++) {
+                int max = active_PID_number - 1;
+                for (int x = 0; x < max; x++) {
                     printf("%d, ", PIDS_IN_PROCESS[x]);
                 }
-                printf("%d\n", PIDS_IN_PROCESS[active_PID_number - 1]);
+                printf("%d\n", PIDS_IN_PROCESS[max]);
             } else if (strncmp(command[0], "kill", 4) == 0) { //kill pid in process
                 printf("ITS KILL PID\n");
                 pid_t child_pid = getpid();
