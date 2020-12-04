@@ -67,25 +67,30 @@ void free_tokens(char **tokens) {
 }
 
 int create_process(char **command) {
-    pid_t child_pid;
-    int ret;
+    pid_t pid, wpid;
+    int status;
 
-    child_pid = fork();
+    pid = fork();
 
-	if (child_pid == 0) { 
-		ret = execv(command[0], command);//execv only returns -1 if an error has occurred 
+	if (pid == 0) { 
+		execv(command[0], command);//execv only returns -1 if an error has occurred 
 		fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
         //might create helper function that handles other types of errors. (Defensive programming);
         exit(0); //exit failed process
 	}
+    else if (pid < 0) {
+        //error forking
+        perror("error forking");
+    }
 	else {
-		int child_status; 
-        waitpid(child_pid, &child_status, 0);
+        //Parent process 
+        wpid = waitpid(pid, &status, 0);
 	}
-    return child_pid;
+    return pid;
 }
 
 int create_back_process(char **command) {
+    //
     pid_t child_pid;
     int ret;
 
@@ -189,7 +194,6 @@ int main(int argc, char **argv) {
                 int child_pid = create_process(command);
             }
         }
-
         printf("%s", PROMPT);
         fflush(stdout);  // Display the prompt immediately
     }
