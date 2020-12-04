@@ -91,18 +91,18 @@ int create_process(char **command) {
 
 int create_back_process(char **command) {
     //
-    pid_t child_pid;
+    pid_t pid;
     int ret;
 
-    child_pid = fork();
+    pid = fork();
 
-	if (child_pid == 0) { 
+	if (pid == 0) { 
 		ret = execv(command[0], command);//execv only returns -1 if an error has occurred 
 		fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
         //might create helper function that handles other types of errors. (Defensive programming);
         exit(0); //exit failed process
 	}
-    return child_pid;
+    return pid;
 }
 
 
