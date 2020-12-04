@@ -102,17 +102,19 @@ int create_back_process(char **command) {
 
 
 
+
 int main(int argc, char **argv) {
     // main loop for the shell
     printf("%s", PROMPT);
     fflush(stdout);  // Display the prompt immediately
     char buffer[1024];
-    unsigned int active_PID_number = 0; //keep track of # of active processes
+    int active_PID_number = 0; //keep track of # of active processes
     unsigned int PIDS_IN_PROCESS[MAX_BACKGROUND]; //Moved here b/c needs to be declared before check
     while (fgets(buffer, 1024, stdin) != NULL) {
         for (int i = 0; i < active_PID_number; i++) {// check for runnning processes
             int child_pid = PIDS_IN_PROCESS[i];
             int child_status;
+            printf("Child status: %d\n", child_status); 
             int ret = waitpid(child_pid, &child_status, WNOHANG);
             if (ret > 0) {// if finished do print statment
                 printf("%d finished with exit code %d\n", child_pid, child_status);
@@ -141,12 +143,14 @@ int main(int argc, char **argv) {
             ///////////////////////////
             if (strncmp(command[0], "exit", 4) == 0) {  //check whether built-in or exit() command
                 exit(0); 
-            } else if (strncmp(command[0], "jobs", 4) == 0) { //print number of jobs
+            } 
+            else if (strncmp(command[0], "jobs", 10) == 0) { //print number of jobs
                 // printf("ITS JOBS\n"); //DEBUGGER
                 // This should work if the bottom is set
                 // Need to work in out to include the ,
-                printf("Process currently active: ");
-                for (int x = 0; x < (active_PID_number - 1); x++) {
+                printf("Process currently active (should print %d): ", active_PID_number);
+                //int max = active_PID_number - 1;
+                for (int x = 0; x < active_PID_number; x++) {
                     printf("%d, ", PIDS_IN_PROCESS[x]);
                 }
                 printf("%d\n", PIDS_IN_PROCESS[active_PID_number - 1]);
@@ -180,7 +184,6 @@ int main(int argc, char **argv) {
             } else {
                 // printf("IS NOT NULL \n"); //DEBUGGER
                 int child_pid = create_process(command);
-                //might have to declare child status variable here
             }
         }
 
