@@ -66,46 +66,47 @@ void free_tokens(char **tokens) {
     free(tokens); // then free the array
 }
 
+/*
+ * Create process and wait for it to finish
+ */
 int create_process(char **command) {
     pid_t pid, wpid;
     int status;
-
     pid = fork();
-
 	if (pid == 0) { 
 		execv(command[0], command);//execv only returns -1 if an error has occurred 
 		fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
-        //might create helper function that handles other types of errors. (Defensive programming);
         exit(0); //exit failed process
-	}
-    else if (pid < 0) {
+	} else if (pid < 0) {
         //error forking
         perror("error forking");
-    }
-	else {
+    } else {
         //Parent process 
         wpid = waitpid(pid, &status, 0);
 	}
     return pid;
 }
 
+/*
+ * Create process and don't wait
+ */
 int create_back_process(char **command) {
     pid_t pid;
     int ret;
-
     pid = fork();
-
 	if (pid == 0) { 
 		ret = execv(command[0], command);//execv only returns -1 if an error has occurred 
 		fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
-        //might create helper function that handles other types of errors. (Defensive programming);
         exit(0); //exit failed process
 	}
     return pid;
 }
 
+/*
+ * Remove pid number and shift the rest to replace it
+ * @param pid numbers, pid to remove, number of active processes
+ */
 int * remove_process(int* PIDS_IN_PROCESS, int pid, int num_active) {
-
     int active_PID_number = num_active;
     int y;
     int found = 0;
@@ -120,40 +121,33 @@ int * remove_process(int* PIDS_IN_PROCESS, int pid, int num_active) {
     return PIDS_IN_PROCESS;
 }
 
-
-
-
 int main(int argc, char **argv) {
     // main loop for the shell
     printf("%s", PROMPT);
     fflush(stdout);  // Display the prompt immediately
     char buffer[1024];
     int active_PID_number = 0; //keep track of # of active processes
-    int PIDS_IN_PROCESS[MAX_BACKGROUND]; //Moved here b/c needs to be declared before check
+    int PIDS_IN_PROCESS[MAX_BACKGROUND];
     while (fgets(buffer, 1024, stdin) != NULL) {
         // check for runnning processes
-        
         for (int i = 0; i < active_PID_number; i++) {
             int child_pid = PIDS_IN_PROCESS[i];
             int child_status = 0;
             int ret = waitpid(child_pid, &child_status, WNOHANG);
-            if (ret > 0) {// if finished do print statment
+            if (ret > 0) { // if finished do print statment
                 printf("%d finished with exit code %d\n", child_pid, child_status);
                 remove_process(PIDS_IN_PROCESS,child_pid, active_PID_number); // remove ## from the list
-                active_PID_number--;// active_PID_number--
+                active_PID_number--; // active_PID_number--
             }
             else if (ret == -1) {
                 fprintf(stderr, "execv failed: %s\n", strerror(errno)); 
             }
         }
-
-        char **command = tokenize(buffer, " \t\n"); //command[0] holds "/bin/ls"; command[1] holds "-l"
-        
+        char **command = tokenize(buffer, " \t\n"); // tokenize input
         //check if nothing was entered
         if (command[0] != NULL){
-            // Get what the last char is
             int i = 0;
-            while(command[i] != NULL) {
+            while(command[i] != NULL) { // Get where the last char is
                 i++;
             }
             if (strncmp(command[0], "exit", 4) == 0) {  //check whether built-in or exit() command
@@ -173,8 +167,8 @@ int main(int argc, char **argv) {
             } else if (strncmp(command[i-1], "&", 4) == 0){
                 command[i-1] = NULL; 
                 int child_pid = create_back_process(command);
-                PIDS_IN_PROCESS[active_PID_number] = child_pid;// add ## to the list (PIDS_IN_PROCESS)
-                active_PID_number++;// increase active_PID_number by one
+                PIDS_IN_PROCESS[active_PID_number] = child_pid; // add ## to the list (PIDS_IN_PROCESS)
+                active_PID_number++; // increase active_PID_number by one
             } else {
                 create_process(command);
             }
